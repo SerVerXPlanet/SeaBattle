@@ -63,14 +63,11 @@ namespace SeaBattle
         internal void NewGame()
         {
             State = GameStatus.Settings;
-<<<<<<< HEAD
-=======
 
             AddText("Расставьте свои корабли");
 
             fieldHuman.Mode = Mode.Build;
             fieldHuman.SetLights(Step.Prepare);
->>>>>>> 97b2959 (добавлен цветовой признак очередности хода в нулевом углу доски)
         }
 
 
@@ -87,12 +84,9 @@ namespace SeaBattle
             fieldNPC.Mode = Mode.View;
             fieldHuman.Mode = Mode.View;
 
-<<<<<<< HEAD
-=======
             fieldHuman.SetLights(Step.Stop);
             fieldNPC.SetLights(Step.Stop);
 
->>>>>>> 97b2959 (добавлен цветовой признак очередности хода в нулевом углу доски)
             AddText("Игра окончена");
         }
 
@@ -106,17 +100,13 @@ namespace SeaBattle
 
         async internal void DoStepNPC()
         {
-<<<<<<< HEAD
-=======
             fieldHuman.SetLights(Step.Run);
             fieldNPC.SetLights(Step.Wait);
 
->>>>>>> 97b2959 (добавлен цветовой признак очередности хода в нулевом углу доски)
             Random rnd = new Random();
             //Thread.Sleep();
             await Delay(rnd.Next(500, 1500));
 
-            bool isLegal = false;
             Status status;
             bool isHit = false;
             int x, y;
@@ -141,7 +131,7 @@ namespace SeaBattle
             }
 
             fieldHuman.Mode = Mode.Check;
-            isLegal = fieldHuman.ActivateCell(new Point(x, y), MouseButtons.None);
+            _ = fieldHuman.ActivateCell(new Point(x, y), MouseButtons.None);
             fieldHuman.Mode = Mode.View;
             
             AddText($"@   {fieldHuman.NamesX[x - 1]}{fieldHuman.NamesY[y - 1].Trim()}   {(isHit ? "X" : "")}");
@@ -152,13 +142,6 @@ namespace SeaBattle
                 Stop();
                 return;
             }
-<<<<<<< HEAD
-            
-            if (isHit)
-                DoStepNPC();
-            else
-                fieldNPC.Mode = Mode.Battle;
-=======
 
             if (isHit)
                 DoStepNPC();
@@ -168,7 +151,6 @@ namespace SeaBattle
                 fieldHuman.SetLights(Step.Wait);
                 fieldNPC.SetLights(Step.Run);
             }
->>>>>>> 97b2959 (добавлен цветовой признак очередности хода в нулевом углу доски)
         }
 
 

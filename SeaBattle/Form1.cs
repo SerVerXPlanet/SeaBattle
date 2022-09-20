@@ -34,7 +34,7 @@ namespace SeaBattle
 
             field1.ShipsInstalled += Field1_ShipsInstalled;
             field1.ShipsChecked += Field1_ShipsChecked;
-            field2.ShipsDestroyed += Field2_ShipsDestroyed;
+            //field2.ShipsDestroyed += Field2_ShipsDestroyed;
 
             SetSettings();
 
@@ -83,20 +83,11 @@ namespace SeaBattle
 
             field2.Mode = game.YourStep ? SeaFight.Mode.Battle : SeaFight.Mode.View;
 
-<<<<<<< HEAD
-            if(!game.YourStep)
-=======
             field1.SetLights(game.YourStep ? SeaFight.Step.Wait : SeaFight.Step.Run);
             field2.SetLights(game.YourStep ? SeaFight.Step.Run : SeaFight.Step.Wait);
 
             if (!game.YourStep)
->>>>>>> 97b2959 (добавлен цветовой признак очередности хода в нулевом углу доски)
                 game.DoStepNPC();
-        }
-
-        private void Field2_ShipsDestroyed()
-        {
-            //game.AddText("Корабли противника уничтожены!");
         }
 
 
@@ -112,14 +103,8 @@ namespace SeaBattle
                 game.NewGame();
             else
                 return;
-<<<<<<< HEAD
-
-            game.AddText("Расставьте свои корабли");
-
-            field1.Mode = SeaFight.Mode.Build;
-=======
->>>>>>> 97b2959 (добавлен цветовой признак очередности хода в нулевом углу доски)
         }
+
 
         private void menuNetwork_Click(object sender, EventArgs e)
         {
