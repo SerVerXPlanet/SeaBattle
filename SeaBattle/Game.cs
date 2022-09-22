@@ -15,9 +15,15 @@ namespace SeaBattle
 
     class Game
     {
+        static readonly Point emptyPoint = new Point(0, 0);
+
         StringBuilder msg = new StringBuilder();
-        Field fieldNPC;
-        Field fieldHuman;
+        readonly Field fieldNPC;
+        readonly Field fieldHuman;
+
+        Point lastDamaged = emptyPoint; // флаг попадания
+        Point prevPoint;
+        bool? orient; // ориентация поврежденного корабля
 
 
         public GameStatus State { get; set; }
@@ -49,6 +55,10 @@ namespace SeaBattle
 
             fieldNPC.Invalidate();
             fieldHuman.Invalidate();
+
+            lastDamaged = emptyPoint;
+            orient = null;
+            prevPoint = emptyPoint;
         }
 
 
@@ -107,16 +117,40 @@ namespace SeaBattle
             //Thread.Sleep();
             await Delay(rnd.Next(500, 1500));
 
+            bool isHit = false; // флаг попадания
+
             Status status;
-            bool isHit = false;
-            int x, y;
+            int x = 0, y = 0;
 
             do
             {
-                x = rnd.Next(1, fieldHuman.HorizontalSize + 1);
-                y = rnd.Next(1, fieldHuman.VerticalSize + 1);
+                if (lastDamaged.X == 0)
+                {
+                    x = rnd.Next(1, fieldHuman.HorizontalSize + 1);
+                    y = rnd.Next(1, fieldHuman.VerticalSize + 1);
+                }
+                else
+                {
+                    int sign = rnd.Next(0, 2);
+
+                    if(orient is null && sign == 0 || !(orient is null) && (bool)orient)
+                    {
+                        x = GetNearValue(prevPoint.X, fieldHuman.HorizontalSize);
+                        y = prevPoint.Y;
+                    }
+                    else if (orient is null && sign == 1 || !(orient is null) && !(bool)orient)
+                    {
+                        x = prevPoint.X;
+                        y = GetNearValue(prevPoint.Y, fieldHuman.VerticalSize);
+                    }
+                }
 
                 status = fieldHuman.Cells[x, y];
+
+                if (!(orient is null) && status == Status.Hit)
+                {
+                    prevPoint = new Point(x, y);
+                }
             }
             while (!(status == Status.Ship || status == Status.Empty));
 
@@ -130,11 +164,25 @@ namespace SeaBattle
                     break;
             }
 
+            Point currentCell = new Point(x, y);
+
+            if(isHit)
+                lastDamaged = currentCell;
+
             fieldHuman.Mode = Mode.Check;
-            _ = fieldHuman.ActivateCell(new Point(x, y), MouseButtons.None);
+            _ = fieldHuman.ActivateCell(currentCell, MouseButtons.None);
             fieldHuman.Mode = Mode.View;
+
+            bool isShipDestroyed = false;
+
+            if (isHit)
+            {
+                isShipDestroyed = fieldHuman.IsShipDestroyed(currentCell, true);
+            }
+
+            char flag = isHit ? (isShipDestroyed ? '#' : 'X') : ' ';
             
-            AddText($"@   {fieldHuman.NamesX[x - 1]}{fieldHuman.NamesY[y - 1].Trim()}   {(isHit ? "X" : "")}");
+            AddText($"@   {fieldHuman.NamesX[x - 1]}{fieldHuman.NamesY[y - 1].Trim()}   {flag}");
             
             if (fieldHuman.NavyCheck())
             {
@@ -144,13 +192,51 @@ namespace SeaBattle
             }
 
             if (isHit)
+            {
+                if (orient is null && fieldHuman.Cells[prevPoint.X, prevPoint.Y] == Status.Hit)
+                {
+                    if (prevPoint.X == x)
+                        orient = false;
+                    else if (prevPoint.Y == y)
+                        orient = true;
+                }
+
+                prevPoint = currentCell;
+
+                if (isShipDestroyed)
+                {
+                    lastDamaged = emptyPoint;
+                    orient = null;
+                    prevPoint = emptyPoint;
+                }
+
                 DoStepNPC();
+            }
             else
             {
                 fieldNPC.Mode = Mode.Battle;
                 fieldHuman.SetLights(Step.Wait);
                 fieldNPC.SetLights(Step.Run);
             }
+        }
+
+
+        int GetNearValue(int oldVal, int maxVal)
+        {
+            int newVal;
+            
+            if (oldVal == 1)
+                newVal = oldVal + 1;
+            else if (oldVal == maxVal)
+                newVal = oldVal - 1;
+            else
+            {
+                Random rnd = new Random();
+                int sign = rnd.Next(0, 2) == 0 ? -1 : 1;
+                newVal = oldVal + sign;
+            }
+
+            return newVal;
         }
 
 
@@ -173,7 +259,16 @@ namespace SeaBattle
                     break;
             }
 
-            AddText($"/\\   {fieldNPC.NamesX[currentCell.X - 1]}{fieldNPC.NamesY[currentCell.Y - 1].Trim()}   {(isHit ? "X" : "")}");
+            bool isShipDestroyed = false;
+
+            if (isHit)
+            {
+                isShipDestroyed = fieldNPC.IsShipDestroyed(currentCell);
+            }
+
+            char flag = isHit ? (isShipDestroyed ? '#' : 'X') : ' ';
+
+            AddText($"/\\   {fieldNPC.NamesX[currentCell.X - 1]}{fieldNPC.NamesY[currentCell.Y - 1].Trim()}   {flag}");
 
             if (!isHit)
             {
@@ -193,6 +288,8 @@ namespace SeaBattle
         internal void GenerateNPC()
         {
             bool sucsess = fieldNPC.GenerateShips();
+
+            string s = fieldNPC.ToString();
 
             if (!sucsess)
             {

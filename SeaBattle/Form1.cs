@@ -120,8 +120,8 @@ namespace SeaBattle
             field2.HorizontalSize = HSIZE;
             field2.VerticalSize = VSIZE;
 
-            //field1.Ships = new int[] { 10 };
-            //field2.Ships = new int[] { 10 };
+            //field1.Ships = new int[] { 10, 10 };
+            //field2.Ships = new int[] { 10, 10 };
         }
 
 
