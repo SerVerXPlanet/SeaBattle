@@ -62,11 +62,14 @@ namespace SeaBattle
 
                 field1.Width = field2.Width = (int)((1.0f - 2.0f * BORDER) * panelWidth);
 
-                field1.Location = new Point((int)(BORDER * panelWidth), (int)(BORDER * Container.Panel1.Height));
+                field1.Location = new Point((int)(BORDER * panelWidth), (int)(BORDER * Container.Panel1.Height) + lblCaption1.Height);
                 field2.Location = new Point((int)(Container.Panel2.Width * (1.0f - BORDER)) - field2.Width, field1.Location.Y);
 
                 field1.Invalidate();
                 field2.Invalidate();
+
+                lblCaption1.Height = lblCaption2.Height = field1.Width / field1.HorizontalSize;
+                lblCaption1.Font = lblCaption2.Font = new Font(lblCaption1.Font.Name, (float)(field1.Width / 27.5));
             }
         }
 
@@ -99,17 +102,13 @@ namespace SeaBattle
 
             game.GenerateNPC();
 
-            if (game.State == GameStatus.Closed)
-                game.NewGame();
-            else
-                return;
+            game.NewGame();
         }
 
 
         private void menuNetwork_Click(object sender, EventArgs e)
         {
-            //if (game.Status == GameStatus.Closed)
-            //    game.NewGame();
+            //game.NewGame();
         }
 
 
@@ -132,7 +131,7 @@ namespace SeaBattle
 
         private void menuAbout_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Made_by_SerVer" + Environment.NewLine + Environment.NewLine + "project@verevkinsa.ru", "О программе", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show("Made_by_SerVer" + Environment.NewLine + Environment.NewLine + "mail@verevkinsa.ru", "О программе", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 }

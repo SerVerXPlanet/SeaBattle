@@ -59,6 +59,8 @@ namespace SeaBattle
             lastDamaged = emptyPoint;
             orient = null;
             prevPoint = emptyPoint;
+
+           // State = GameStatus.Closed;
         }
 
 
@@ -186,8 +188,11 @@ namespace SeaBattle
             
             if (fieldHuman.NavyCheck())
             {
-                AddText("Компьютер выиграл!");
+                string textMsg = "Компьютер выиграл!";
+                AddText(textMsg);
+                fieldNPC.OpenLiveShips();
                 Stop();
+                MessageBox.Show(textMsg);
                 return;
             }
 
@@ -278,8 +283,10 @@ namespace SeaBattle
 
             if (fieldNPC.DestructionCheck())
             {
-                AddText("Вы выиграли!");
+                string textMsg = "Вы выиграли!";
+                AddText(textMsg);
                 Stop();
+                MessageBox.Show(textMsg);
                 return;
             }
         }
